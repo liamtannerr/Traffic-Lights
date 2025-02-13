@@ -10,6 +10,11 @@
 #include "../FreeRTOS_Source/include/semphr.h"
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
+#include "../Libraries/include/Initialization.h"
+#include "../Libraries/include/StopLight.h"
+#include "../Libraries/include/SystemDisplay.h"
+#include "../Libraries/include/TrafficFlow.h"
+#include "../Libraries/include/TrafficGeneration.h"
 
 
 
@@ -46,18 +51,22 @@ unsigned char digits[10] = { 0x3f, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7
 int main(void)
 {
 
-	adc_init();
-	led_init();
+	GPIOC_Init();
 
 	/* Configure the system ready to run the demo.  The clock configuration
 	can be done here if it was not done before main() was called. */
-	prvSetupHardware();
+	//prvSetupHardware();
 
 
-	xTaskCreate( Manager_Task, "Manager", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
-	printf("Hi there\n");
+	//xTaskCreate( Manager_Task, "Manager", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
+	//printf("Hi there\n");
 	/* Start the tasks and timer running. */
-	vTaskStartScheduler();
+	//vTaskStartScheduler();
+
+	GPIO_SetBits(GPIOC, GPIO_Pin_0);
+ 	GPIO_ResetBits(GPIOC,GPIO_Pin_0);
+ 	GPIO_SetBits(GPIOC, GPIO_Pin_7);
+
 
 	return 0;
 }
