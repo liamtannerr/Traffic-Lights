@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <time.h>
 #include "stm32f4_discovery.h"
 #include "stm32f4xx.h"
 #include "../FreeRTOS_Source/include/FreeRTOS.h"
@@ -9,8 +10,10 @@
 #include "../FreeRTOS_Source/include/timers.h"
 #include "../Libraries/include/RTOS.h"
 #include "../Libraries/include/StopLight.h"
+#include "../Libraries/include/TrafficGeneration.h"
 
 #define mainQUEUE_LENGTH 100
+#define maxTicks 13000
 
 void Start_RTOS();
 
@@ -31,7 +34,7 @@ void Start_RTOS(){
 	/* Add to the registry, for the benefit of kernel aware debugging. */
 	vQueueAddToRegistry( xQueue_handle, "MainQueue" );
 
-	xTaskCreate( Traffic_Flow_Task, "Traffic_Flow", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
+	//xTaskCreate( Traffic_Flow_Task, "Traffic_Flow", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
 	xTaskCreate( Stop_Light_Task, "Stop_Light", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 	xTaskCreate( Traffic_Generation_Task, "Traffic_Generation_Task", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
 	xTaskCreate( System_Display_Task, "System_Display", configMINIMAL_STACK_SIZE, NULL, 1, NULL);
@@ -39,7 +42,7 @@ void Start_RTOS(){
 	vTaskStartScheduler();
 }
 
-void Traffic_Flow_Task(void *pvParameters){
+/*void Traffic_Flow_Task(void *pvParameters){
 
 	uint16_t Traffic_Flow_Value = ADC_GetConversionValue(ADC1);
 
@@ -50,7 +53,7 @@ void Traffic_Flow_Task(void *pvParameters){
 		}
 	}
 
-}
+}*/
 
 void Stop_Light_Task(void *pvParameters){
 
@@ -65,14 +68,29 @@ void Stop_Light_Task(void *pvParameters){
 		Set_Colour(1);
 		vTaskDelay(3000);
 		Set_Colour(2);
-		vTaskDelay(13000 - delay); // clean this up
+		vTaskDelay(maxTicks - delay); // clean this up
 	}
 
 }
 
 void Traffic_Generation_Task(void *pvParameters){
 
-	while(1){}
+	int minValue = 0;
+	int maxValue = 10;
+	int flow_value = 0;
+
+	srand(time(NULL));
+
+	while(1){
+		int rand_value = rand() % (maxValue - minValue + 1) + minValue;
+		flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
+		if(rand_value <= flow_value)
+			printf("Generate Car!\n");
+		else
+			printf("No Car.\n");
+		vTaskDelay(1000);
+
+	}
 
 }
 

@@ -27,7 +27,7 @@ void Set_Colour(int colour){
 int Get_Delay(int Traffic_Flow_Value){
 	int low_pot = 1; // min pot value
 	int high_pot = 4096; // max pot value
-	int low_time = 3; // min light time (3 seconds)
+	int low_time = 4; // min light time (3 seconds)
 	int high_time = 10; // max light time (10 seconds)
 
 	return (low_time + (Traffic_Flow_Value - low_pot) * (high_time - low_time) / (high_pot - low_pot)) * 1000;
