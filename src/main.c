@@ -51,22 +51,21 @@ unsigned char digits[10] = { 0x3f, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7
 int main(void)
 {
 
+	SystemInit();
+	SystemCoreClockUpdate();
+
+	printf("System Clock: %u Hz\n", SystemCoreClock);
+
 	GPIOC_Init();
 	TIM1_Init();
-
-	SystemCoreClockUpdate();
-	printf("System Clock: %u Hz\n", SystemCoreClock);
+	ADC1_Init();
 
 
 	uint32_t counterValue;
 	int count = 0;
 
 	while(1){
-		counterValue = TIM1->CNT;
-		if(counterValue == 0xFFFF){
-			printf("time %d\n", counterValue);
-			count++;
-		}
+		printf("time %u\n",ADC_GetConversionValue(ADC1));
 	}
 
 
