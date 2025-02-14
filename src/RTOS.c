@@ -14,6 +14,7 @@
 
 #define mainQUEUE_LENGTH 100
 #define maxTicks 13000
+#define roadLength 19
 
 void Start_RTOS();
 
@@ -78,16 +79,31 @@ void Traffic_Generation_Task(void *pvParameters){
 	int minValue = 0;
 	int maxValue = 10;
 	int flow_value = 0;
+	uint32_t road = 0x0;
 
 	srand(time(NULL));
+
+	GPIO_SetBits(GPIOC, GPIO_Pin_4);
 
 	while(1){
 		int rand_value = rand() % (maxValue - minValue + 1) + minValue;
 		flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
-		if(rand_value <= flow_value)
-			printf("Generate Car!\n");
-		else
-			printf("No Car.\n");
+		if(rand_value <= flow_value){
+			road = (road >> 1) | (1<<(roadLength-1));
+			//printf("Generate Car! %u\n",road);
+		} else{
+			road = (road >> 1);
+			//printf("No Car. %u\n",road);
+		}
+		for(int i = 7; i>=0; i--){
+	        if (road & (1 << i)) {
+	        	GPIO_SetBits(GPIOC, GPIO_Pin_6);
+	        } else {
+	        	GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+	        }
+	        GPIO_SetBits(GPIOC, GPIO_Pin_5);
+	        GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+		}
 		vTaskDelay(1000);
 
 	}

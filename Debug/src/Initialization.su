@@ -1,0 +1,4 @@
+Initialization.c:10:6:GPIOC_Init	16	static
+Initialization.c:44:6:TIM1_Init	24	static
+Initialization.c:67:6:ADC1_Init	32	static
+Initialization.c:91:6:Clear_SR	8	static

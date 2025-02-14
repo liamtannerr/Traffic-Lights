@@ -1,0 +1,2 @@
+StopLight.c:10:6:Set_Colour	16	static
+StopLight.c:27:5:Get_Delay	32	static
