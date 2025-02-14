@@ -8,6 +8,7 @@
 #include "../FreeRTOS_Source/include/task.h"
 #include "../FreeRTOS_Source/include/timers.h"
 #include "../Libraries/include/RTOS.h"
+#include "../Libraries/include/StopLight.h"
 
 #define mainQUEUE_LENGTH 100
 
@@ -53,7 +54,19 @@ void Traffic_Flow_Task(void *pvParameters){
 
 void Stop_Light_Task(void *pvParameters){
 
-	while(1){}
+	Set_Colour(0);
+
+	int delay = 0;
+
+	while(1){
+		delay = Get_Delay(ADC_GetConversionValue(ADC1)+1);
+		Set_Colour(0);
+		vTaskDelay(delay);
+		Set_Colour(1);
+		vTaskDelay(3000);
+		Set_Colour(2);
+		vTaskDelay(13000 - delay); // clean this up
+	}
 
 }
 
