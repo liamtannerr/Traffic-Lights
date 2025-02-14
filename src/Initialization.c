@@ -4,11 +4,8 @@
 #include <stdio.h>
 #include "stm32f4_discovery.h"
 #include "stm32f4xx.h"
-#include "../FreeRTOS_Source/include/FreeRTOS.h"
-#include "../FreeRTOS_Source/include/queue.h"
-#include "../FreeRTOS_Source/include/semphr.h"
-#include "../FreeRTOS_Source/include/task.h"
-#include "../FreeRTOS_Source/include/timers.h"
+
+#define mainQUEUE_LENGTH 100
 
 void GPIOC_Init(){
 
@@ -89,4 +86,16 @@ void ADC1_Init(){
 	ADC_Cmd(ADC1, ENABLE);
     ADC_SoftwareStartConv(ADC1);
 
+}
+
+void Clear_SR(){
+	GPIO_ResetBits(GPIOC, GPIO_Pin_4);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_7);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_8);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_9);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_10);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_11);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_12);
 }
