@@ -65,8 +65,10 @@ void Stop_Light_Task(void *pvParameters){
 	while(1){
 		delay = Get_Delay(ADC_GetConversionValue(ADC1)+1);
 		Set_Colour(0);
+		xQueueSend(xQueue_handle, 0, 1000);
 		vTaskDelay(delay);
 		Set_Colour(1);
+		xQueueSend(xQueue_handle, 2, 1000);
 		vTaskDelay(3000);
 		Set_Colour(2);
 		vTaskDelay(maxTicks - delay); // clean this up
@@ -80,12 +82,18 @@ void Traffic_Generation_Task(void *pvParameters){
 	int maxValue = 10;
 	int flow_value = 0;
 	uint32_t road = 0x0;
+	uint16_t rx_data;
 
 	srand(time(NULL));
 
 	GPIO_SetBits(GPIOC, GPIO_Pin_4);
 
 	while(1){
+		xQueueReceive(xQueue_handle, &rx_data, 500);
+		if(rx_data == 0)
+			printf("Light is green!\n");
+		else
+			printf("Light is red!\n");
 		int rand_value = rand() % (maxValue - minValue + 1) + minValue;
 		flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
 		if(rand_value <= flow_value){
