@@ -48,14 +48,21 @@ void TIM1_Init(){
 
 
 	// Prescaler and period make it so that it triggers every 100ms
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+
 	TIM_TimeBaseInitTypeDef TIM1_InitStruct;
-	TIM1_InitStruct.TIM_Prescaler = 0xD; // figure out what clock is
+	//TIM1_InitStruct.TIM_Prescaler = 0x100; // figure out what clock is, this should be 100ms
+	TIM1_InitStruct.TIM_Prescaler = 0xA03; // 1s
+	//TIM1_InitStruct.TIM_Prescaler = 0x641E; // 10s
 	TIM1_InitStruct.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM1_InitStruct.TIM_Period = 0xFFFF; // 100ms if that's what it is
 	TIM1_InitStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM1_InitStruct.TIM_RepetitionCounter = 0x1; // generate event every time
 
-	TIM_TimeBaseInit(TIM1, TIM1_InitStruct);
+
+	TIM_TimeBaseInit(TIM1, &TIM1_InitStruct);
+	TIM_SetAutoreload(TIM1, 0xFFFF);
+	TIM_Cmd(TIM1, ENABLE);
 
 }
 
@@ -80,4 +87,4 @@ void TIM1_Init(){
 
 
 
-}
+} */

@@ -52,10 +52,22 @@ int main(void)
 {
 
 	GPIOC_Init();
+	TIM1_Init();
 
-	GPIO_SetBits(GPIOC, GPIO_Pin_0);
- 	GPIO_ResetBits(GPIOC,GPIO_Pin_0);
- 	GPIO_SetBits(GPIOC, GPIO_Pin_7);
+	SystemCoreClockUpdate();
+	printf("System Clock: %u Hz\n", SystemCoreClock);
+
+
+	uint32_t counterValue;
+	int count = 0;
+
+	while(1){
+		counterValue = TIM1->CNT;
+		if(counterValue == 0xFFFF){
+			printf("time %d\n", counterValue);
+			count++;
+		}
+	}
 
 
 	return 0;
