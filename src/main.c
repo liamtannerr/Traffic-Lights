@@ -53,16 +53,6 @@ int main(void)
 
 	GPIOC_Init();
 
-	/* Configure the system ready to run the demo.  The clock configuration
-	can be done here if it was not done before main() was called. */
-	//prvSetupHardware();
-
-
-	//xTaskCreate( Manager_Task, "Manager", configMINIMAL_STACK_SIZE, NULL, 2, NULL);
-	//printf("Hi there\n");
-	/* Start the tasks and timer running. */
-	//vTaskStartScheduler();
-
 	GPIO_SetBits(GPIOC, GPIO_Pin_0);
  	GPIO_ResetBits(GPIOC,GPIO_Pin_0);
  	GPIO_SetBits(GPIOC, GPIO_Pin_7);
