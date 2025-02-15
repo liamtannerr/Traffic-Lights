@@ -11,3 +11,13 @@ int Get_Flow(int Traffic_Flow_Value){
 
 	return (low_flow + (Traffic_Flow_Value - low_pot) * (high_flow - low_flow) / (high_pot - low_pot));
 }
+
+uint16_t Get_LSB_Mask(uint16_t preLights){
+	uint16_t mask = 0;
+	while(preLights & 1){
+		mask |= 1;
+		preLights >>= 1;
+		mask <<= 1;
+	}
+	return mask;
+}

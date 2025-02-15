@@ -15,6 +15,7 @@
 #define mainQUEUE_LENGTH 100
 #define maxTicks 13000
 #define roadLength 19
+#define preLightsLength 8
 
 void Start_RTOS();
 
@@ -62,16 +63,22 @@ void Stop_Light_Task(void *pvParameters){
 
 	int delay = 0;
 
+	uint16_t tx_data = 0;
+
 	while(1){
 		delay = Get_Delay(ADC_GetConversionValue(ADC1)+1);
 		Set_Colour(0);
-		xQueueSend(xQueue_handle, 0, 1000);
+		if(xQueueSend(xQueue_handle, &tx_data, 1000)){
+			tx_data = 2;
+		}
 		vTaskDelay(delay);
 		Set_Colour(1);
-		xQueueSend(xQueue_handle, 2, 1000);
-		vTaskDelay(3000);
+		if(xQueueSend(xQueue_handle, &tx_data, 1000)){
+			tx_data = 0;
+		}
+		vTaskDelay(3000); //3 seconds
 		Set_Colour(2);
-		vTaskDelay(maxTicks - delay); // clean this up
+		vTaskDelay(maxTicks - delay);
 	}
 
 }
@@ -82,18 +89,21 @@ void Traffic_Generation_Task(void *pvParameters){
 	int maxValue = 10;
 	int flow_value = 0;
 	uint32_t road = 0x0;
-	uint16_t rx_data;
+	uint16_t rx_data = 0;
 
 	srand(time(NULL));
 
-	GPIO_SetBits(GPIOC, GPIO_Pin_4);
+	GPIO_SetBits(GPIOC, GPIO_Pin_4); // Set CLR to high
 
-	while(1){
-		xQueueReceive(xQueue_handle, &rx_data, 500);
-		if(rx_data == 0)
-			printf("Light is green!\n");
-		else
-			printf("Light is red!\n");
+	while(1){ // no red light shift
+		if(xQueueReceive(xQueue_handle, &rx_data, 500)){
+			if(rx_data == 0)
+				minValue = 0;
+				//printf("Light is green!\n");
+			else
+				minValue = 0;
+				//printf("Light is red!\n");
+		}
 		int rand_value = rand() % (maxValue - minValue + 1) + minValue;
 		flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
 		if(rand_value <= flow_value){
@@ -103,7 +113,7 @@ void Traffic_Generation_Task(void *pvParameters){
 			road = (road >> 1);
 			//printf("No Car. %u\n",road);
 		}
-		for(int i = 7; i>=0; i--){
+		for(int i = 18; i>=0; i--){
 	        if (road & (1 << i)) {
 	        	GPIO_SetBits(GPIOC, GPIO_Pin_6);
 	        } else {
@@ -115,6 +125,146 @@ void Traffic_Generation_Task(void *pvParameters){
 		vTaskDelay(1000);
 
 	}
+
+	/*while(1){ // red light shift
+		if(xQueueReceive(xQueue_handle, &rx_data, 500)){
+			if(rx_data == 0)
+				printf("Light is green!\n");
+			else
+				printf("Light is red!\n");
+		}
+		if(rx_data == 0) {
+			int rand_value = rand() % (maxValue - minValue + 1) + minValue;
+			//flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
+			flow_value = Get_Flow(4000+1);
+			if(rand_value <= flow_value){
+				road = (road >> 1) | (1<<(roadLength-1));
+				printf("Generate Car! %u\n",road);
+			} else{
+				road = (road >> 1);
+				printf("No Car. %u\n",road);
+			}
+			for(int i = 18; i>=0; i--){
+		        if (road & (1 << i)) {
+		        	GPIO_SetBits(GPIOC, GPIO_Pin_6);
+		        } else {
+		        	GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+		        }
+		        GPIO_SetBits(GPIOC, GPIO_Pin_5);
+		        GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+			}
+			vTaskDelay(1000);
+
+		} else {
+			uint16_t preLights = (road >> 11) & 0xFF; // get first 8
+			uint16_t postLights = road & 0x7FF; // get next 11
+			//printf("preLights: %u\n", preLights);
+			uint16_t mask = Get_LSB_Mask(preLights);
+			int rand_value = rand() % (maxValue - minValue + 1) + minValue;
+			//flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
+			flow_value = Get_Flow(2000+1);
+			if(rand_value <= flow_value){
+				preLights = ((preLights >> 1) | (1<<(preLightsLength-1))) | mask;
+				printf("Generate Car! %u\n",preLights);
+			} else{
+				preLights = (preLights >> 1) | mask;
+				printf("No Car. %u\n",preLights);
+			}
+			preLights &= 0xFF;
+			postLights = postLights >> 1; // shift post lights as normal
+
+			road = (preLights << 11) | postLights;
+			printf("Road: %u\n", road);
+			for(int i = 18; i>=0; i--){
+				if (road & (1 << i)) {
+					GPIO_SetBits(GPIOC, GPIO_Pin_6);
+				} else {
+					GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+				}
+				GPIO_SetBits(GPIOC, GPIO_Pin_5);
+				GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+			}
+			vTaskDelay(1000);
+		}
+
+	}*/
+
+	/*while(1){ // red light shift
+		if(xQueueReceive(xQueue_handle, &rx_data, 500)){}
+		if(rx_data == 0){ // green
+			currentOverflow = 0x0;
+			printf("Light is green!\n");
+			int rand_value = rand() % (maxValue - minValue + 1) + minValue;
+			flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
+			if(rand_value <= flow_value){
+				road = (road >> 1) | (1<<(roadLength-1));
+				printf("Generate Car! %u\n",road);
+			} else{
+				road = (road >> 1);
+				printf("No Car. %u\n",road);
+			}
+			for(int i = 18; i>=0; i--){
+				if (road & (1 << i)) {
+					GPIO_SetBits(GPIOC, GPIO_Pin_6);
+				} else {
+					GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+				}
+				GPIO_SetBits(GPIOC, GPIO_Pin_5);
+				GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+			}
+			vTaskDelay(1000);
+		}
+
+		else{
+			printf("Light is red!\n");
+			uint16_t preLights = (road >> 11) & 0xFF; // get first 8
+			uint16_t postLights = road & 0x7FF; // get next 11
+			uint16_t mask = Get_LSB_Mask(preLights);
+			int rand_value = rand() % (maxValue - minValue + 1) + minValue;
+			flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
+			if(rand_value <= flow_value){
+				preLights = ((preLights >> 1) | (1<<(preLightsLength-1))) & mask;
+				printf("Generate Car! %u\n",road);
+			} else{ //red
+				road = (road >> 1) & mask;
+				printf("No Car. %u\n",road);
+			}
+			postLights = postLights >> 1; // shift post lights as normal
+
+			road = (preLights << 11) | postLights;
+			for(int i = 18; i>=0; i--){
+				if (road & (1 << i)) {
+					GPIO_SetBits(GPIOC, GPIO_Pin_6);
+				} else {
+					GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+				}
+				GPIO_SetBits(GPIOC, GPIO_Pin_5);
+				GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+			}
+			vTaskDelay(1000);
+		}*/
+
+		/*int rand_value = rand() % (maxValue - minValue + 1) + minValue;
+		flow_value = Get_Flow(ADC_GetConversionValue(ADC1)+1);
+		if(rand_value <= flow_value){
+			road = (road >> 1) | (1<<(roadLength-1));
+			printf("Generate Car! %u\n",road);
+		} else{
+			road = (road >> 1);
+			printf("No Car. %u\n",road);
+		}
+		for(int i = 18; i>=0; i--){
+	        if (road & (1 << i)) {
+	        	GPIO_SetBits(GPIOC, GPIO_Pin_6);
+	        } else {
+	        	GPIO_ResetBits(GPIOC, GPIO_Pin_6);
+	        }
+	        GPIO_SetBits(GPIOC, GPIO_Pin_5);
+	        GPIO_ResetBits(GPIOC, GPIO_Pin_5);
+		}
+		vTaskDelay(1000);
+
+	}*/
 
 }
 
