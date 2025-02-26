@@ -1,0 +1,7 @@
+RTOS.c:33:6:Start_RTOS	16	static
+RTOS.c:61:6:Stop_Light_Task	24	static
+RTOS.c:87:6:Traffic_Generation_Task	48	static
+RTOS.c:165:6:System_Display_Task	16	static
+RTOS.c:171:6:vApplicationMallocFailedHook	4	static
+RTOS.c:185:6:vApplicationStackOverflowHook	16	static
+RTOS.c:199:6:vApplicationIdleHook	16	static
