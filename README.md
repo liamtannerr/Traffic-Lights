@@ -3,3 +3,5 @@ The objective of this project is to create a traffic light simulation using hard
 The full hardware, software and middleare implementation of our system can be found in Project 1 - Lab Report.pdf.
 
 ![IMG_C1BCFAE1B868-1](https://github.com/user-attachments/assets/af10a294-caf4-4382-ab16-3a7146957d85)
+
+The breadboard wiring of our system.
