@@ -2,3 +2,4 @@ The objective of this project is to create a traffic light simulation using hard
 
 The full hardware, software and middleare implementation of our system can be found in Project 1 - Lab Report.pdf.
 
+[L7-ECE455-2025.pptx](https://github.com/user-attachments/files/19116868/L7-ECE455-2025.pptx)
