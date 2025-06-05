@@ -21,9 +21,7 @@ The goal is to realistically simulate traffic flow controlled by a three-light t
 
 ### Deliverables
 
-The full **hardware**, **software**, and **middleware** implementation is documented in:
-
-📄 `Project 1 - Lab Report.pdf`
+The full **hardware**, **software**, and **middleware** implementation is documented in: Project 1 - Lab Report.pdf.
 
 ### Hardware Overview
 
